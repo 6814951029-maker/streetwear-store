@@ -1,0 +1,35 @@
+/* Full-bleed homepage hero overrides. */
+.hero {
+  width: 100vw !important;
+  height: 100svh !important;
+  min-height: 100svh !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.hero-image {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+.hero-image img {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.site-header,
+.site-header a,
+.site-header button,
+.site-header .brand,
+.site-header .header-actions {
+  color: #000 !important;
+}
+
+.site-header .brand span {
+  color: #000 !important;
+}
