@@ -4,9 +4,11 @@ const { put, del } = require("@vercel/blob");
 
 const uploadDir = path.join(__dirname, "../../uploads");
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+const ensureLocalUploadDir = () => {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+};
 
 const normalizeLocalFilename = (value) => {
   const source = value || `uploads/${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -18,6 +20,7 @@ async function uploadToBlob(file, options = {}) {
   const fileBuffer = Buffer.isBuffer(file) ? file : Buffer.from(file);
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    ensureLocalUploadDir();
     const safeName = normalizeLocalFilename(filename);
     const localPath = path.join(uploadDir, safeName);
     fs.writeFileSync(localPath, fileBuffer);

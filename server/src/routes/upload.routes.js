@@ -1,26 +1,12 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 const { uploadToBlob, deleteFromBlob } = require("../lib/blob");
 const authMiddleware = require("../middlewares/authMiddleware");
 const requireAdmin = require("../middlewares/adminMiddleware");
 
 const router = express.Router();
-const uploadDir = path.join(__dirname, "../../uploads");
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname || "upload");
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    cb(null, name);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -40,14 +26,13 @@ router.post("/image", authMiddleware, requireAdmin, upload.single("image"), asyn
       return res.status(400).json({ message: "Image file is required" });
     }
 
-    const localPath = req.file.path;
-    const fileBuffer = fs.readFileSync(localPath);
-    const blobUrl = await uploadToBlob(fileBuffer, {
-      filename: `products/${req.file.filename}`,
+    const ext = req.file.originalname ? req.file.originalname.split(".").pop() : "png";
+    const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const blobUrl = await uploadToBlob(req.file.buffer, {
+      filename,
       contentType: req.file.mimetype,
     });
-
-    fs.unlinkSync(localPath);
 
     return res.status(201).json({ url: blobUrl });
   } catch (error) {
