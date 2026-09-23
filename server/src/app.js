@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const connectDB = require("./config/db");
 const trackRoutes = require("./routes/track.routes");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/product.routes");
@@ -47,6 +48,16 @@ app.use(cors(corsOptionsDelegate));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// Ensure MongoDB connection before handling any request (needed for serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // 2. Routes
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
