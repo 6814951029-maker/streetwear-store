@@ -208,7 +208,7 @@ function CheckoutSummary({ cart, setCart }) {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -295,7 +295,7 @@ export default function App() {
   const [offline, setOffline] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch("/api/products")
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((data) => setProducts(data.products || sampleProducts))
       .catch(() => setOffline(true));

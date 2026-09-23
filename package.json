@@ -1,0 +1,16 @@
+{
+  "name": "port-able-track",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": "20.x"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace client",
+    "start": "npm run start --workspace server"
+  }
+}
