@@ -16,6 +16,20 @@ const blankProduct = {
   colors: ["#050505", "#242424", "#444444"],
 };
 
+const parseErrorMessage = async (response, fallback) => {
+  try {
+    const text = await response.text();
+    if (!text) {
+      return fallback;
+    }
+
+    const parsed = JSON.parse(text);
+    return parsed.message || fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 export default function Admin() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -32,10 +46,19 @@ export default function Admin() {
     [token]
   );
 
-  const loadProducts = () =>
-    fetch(`${API_URL}/products`)
-      .then((response) => response.json())
-      .then((data) => setProducts(data.products || []));
+  const loadProducts = async () => {
+    try {
+      const response = await fetch(`${API_URL}/products`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "ไม่สามารถโหลดสินค้าได้");
+      }
+      setProducts(data.products || []);
+    } catch (requestError) {
+      setError(requestError.message || "ไม่สามารถโหลดสินค้าได้ในขณะนี้");
+      setProducts([]);
+    }
+  };
 
   useEffect(() => {
     if (!token) {
@@ -43,17 +66,23 @@ export default function Admin() {
       return;
     }
 
-    fetch(`${API_URL}/auth/me`, { headers })
-      .then(async (response) => ({ ok: response.ok, data: await response.json() }))
-      .then(({ ok, data }) => {
-        if (!ok || data.user.role !== "admin") {
-          throw new Error("????????????????????????????????");
+    const loadAdminData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/auth/me`, { headers });
+        const data = await response.json();
+
+        if (!response.ok || data.user?.role !== "admin") {
+          throw new Error("คุณไม่มีสิทธิ์เข้าหน้านี้");
         }
 
         setUser(data.user);
-        return loadProducts();
-      })
-      .catch((requestError) => setError(requestError.message));
+        await loadProducts();
+      } catch (requestError) {
+        setError(requestError.message || "ไม่สามารถตรวจสอบสิทธิ์ผู้ใช้ได้");
+      }
+    };
+
+    loadAdminData();
   }, [navigate, token, headers]);
 
   const uploadImageToBlob = async (file) => {
@@ -74,7 +103,7 @@ export default function Admin() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "??????????????????????");
+        throw new Error(data.message || "อัปโหลดรูปภาพไม่สำเร็จ");
       }
 
       setForm((current) => ({ ...current, image: data.url }));
@@ -112,7 +141,7 @@ export default function Admin() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "?????????????????????");
+        throw new Error(data.message || "บันทึกสินค้าล้มเหลว");
       }
 
       setForm(blankProduct);
@@ -120,23 +149,26 @@ export default function Admin() {
       if (fileInput) fileInput.value = "";
       await loadProducts();
     } catch (requestError) {
-      setError(requestError.message);
+      setError(requestError.message || "บันทึกสินค้าล้มเหลว");
     } finally {
       setSaving(false);
     }
   };
 
   const removeProduct = async (id) => {
-    if (!window.confirm("??????????????????????")) return;
+    if (!window.confirm("ต้องการลบสินค้านี้ใช่หรือไม่")) return;
 
-    const response = await fetch(`${API_URL}/products/${id}`, { method: "DELETE", headers });
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.message || "?????????????????");
-      return;
+    try {
+      const response = await fetch(`${API_URL}/products/${id}`, { method: "DELETE", headers });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "ลบสินค้าไม่สำเร็จ");
+      }
+
+      await loadProducts();
+    } catch (requestError) {
+      setError(requestError.message || "ลบสินค้าไม่สำเร็จ");
     }
-
-    await loadProducts();
   };
 
   const editProduct = (product) => {
@@ -157,7 +189,7 @@ export default function Admin() {
         <section className="admin-error">
           <p>ACCESS DENIED</p>
           <h1>{error}</h1>
-          <Link to="/">????????????</Link>
+          <Link to="/">กลับสู่หน้าแรก</Link>
         </section>
       </main>
     );
@@ -186,15 +218,15 @@ export default function Admin() {
         <div className="admin-stats">
           <article>
             <b>{products.length}</b>
-            <span>?????????????????</span>
+            <span>สินค้าทั้งหมด</span>
           </article>
           <article>
             <b>{products.reduce((sum, product) => sum + Number(product.stock || 0), 0)}</b>
-            <span>?????????????</span>
+            <span>จำนวนสต็อก</span>
           </article>
           <article>
             <b>{products.filter((product) => product.category === "bags").length}</b>
-            <span>?????????????</span>
+            <span>กระเป๋า</span>
           </article>
         </div>
 
@@ -210,19 +242,19 @@ export default function Admin() {
               required
             />
             <input
-              placeholder="?????????????"
+              placeholder="ชื่อสินค้า (ไทย)"
               value={form.nameTh}
               onChange={(event) => setForm({ ...form, nameTh: event.target.value })}
               required
             />
             <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}>
-              <option value="clothing">????????</option>
-              <option value="bags">???????</option>
+              <option value="clothing">เสื้อผ้า</option>
+              <option value="bags">กระเป๋า</option>
             </select>
             <input
               type="number"
               min="0"
-              placeholder="????"
+              placeholder="ราคา"
               value={form.price}
               onChange={(event) => setForm({ ...form, price: event.target.value })}
               required
@@ -230,7 +262,7 @@ export default function Admin() {
             <input
               type="number"
               min="0"
-              placeholder="??????????"
+              placeholder="จำนวนสต็อก"
               value={form.stock}
               onChange={(event) => setForm({ ...form, stock: event.target.value })}
               required
