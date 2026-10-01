@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import "./allBlack.css";
 import "./summary-styles.css";
+import "./text-contrast.css";
 
 const sampleProducts = [
   { id: "noir-crop-street-set", name: "Noir Crop Street Set", nameTh: "เสื้อครอปและกางเกงทรงหลวม สีดำ", style: "BLACK COTTON / BAGGY FIT", category: "clothing", price: 1290, colors: ["#050505", "#161616", "#303030"], badge: "ALL BLACK", image: "https://images.shafastatic.net/2172376388" },
@@ -31,10 +32,25 @@ function LayoutShell({ children, cartCount, cartOpen, setCartOpen, cart, removeF
       <header className="site-header">
         <button className="mobile-menu" aria-label="เมนู">☰</button>
         <Link className="brand" to="/">STREETWEAR <span>STORE</span></Link>
-        <nav>
-          <Link to="/">หน้าแรก</Link>
-          <Link to="/shop">หน้าสินค้า</Link>
-          <Link to="/checkout">หน้าสรุป</Link>
+        <nav aria-label="เมนูหลัก">
+          <NavLink to="/" end aria-label="หน้าแรก" title="หน้าแรก">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m3 10 9-7 9 7" />
+              <path d="M5 9v12h14V9M9 21v-7h6v7" />
+            </svg>
+          </NavLink>
+          <NavLink to="/shop" aria-label="หน้าสินค้า" title="หน้าสินค้า">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 8h14l1 13H4L5 8Z" />
+              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+            </svg>
+          </NavLink>
+          <NavLink to="/checkout" aria-label="หน้าสรุป" title="หน้าสรุป">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" />
+              <path d="M9 8h6M9 12h6M9 16h3" />
+            </svg>
+          </NavLink>
         </nav>
         <div className="header-actions">
           <Link to="/login" className="account-link">บัญชี</Link>
@@ -108,9 +124,9 @@ function Home({ cartCount, cartOpen, setCartOpen, cart, removeFromCart, updateQu
         </div>
         <div className="hero-copy">
           <p className="section-kicker">BANGKOK STREET DIVISION / 2026</p>
-          <h1>OWN THE<br /><em>BLOCK.</em></h1>
+          <h1>MOVE YOUR<br /><em>WAY.</em></h1>
           <p>เสื้อผ้าและกระเป๋าสำหรับทุกจังหวะของเมือง<br />ทรงชัด ใส่สบาย พร้อมลุยในแบบของคุณ</p>
-          <Link className="dark-cta" to="/shop">SHOP THE DROP <Icon>→</Icon></Link>
+          <Link className="dark-cta" to="/shop">ดูสินค้าทั้งหมด <Icon>→</Icon></Link>
         </div>
       </section>
 

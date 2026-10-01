@@ -1,1 +1,12 @@
 .product-form{margin:45px 0;padding:28px;border:1px solid #444;background:#080808}.product-form h2{margin:0 0 20px;font:34px Anton}.product-form>div{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.product-form input,.product-form select{min-width:0;padding:12px;border:1px solid #555;background:#151515;color:#eee}.product-form .button{width:auto;margin:15px 10px 0 0}.cancel-button{margin-top:15px;border:1px solid #777;background:transparent;color:#eee;padding:13px 18px;font-weight:700}.admin-list button{border:1px solid #666;background:transparent;color:#eee;padding:7px 9px;font:10px "DM Mono"}.admin-list .delete-button{border-color:#9f4949;color:#ff8989}@media(max-width:600px){.product-form>div{grid-template-columns:1fr}.admin-list article{grid-template-columns:58px 1fr}.admin-list strong,.admin-list button{grid-column:2}}
+.admin-page .product-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));align-items:stretch;gap:20px}
+.admin-page .product-card{display:flex;min-width:0;flex-direction:column;gap:14px;overflow:hidden;padding:14px;border:1px solid rgba(255,255,255,.12);border-radius:8px}
+.admin-page .product-card>img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#222}
+.admin-page .product-card>div{display:flex;min-width:0;flex:1;flex-direction:column;gap:8px}
+.admin-page .product-card h3{margin:0;color:#f7f2ed;font-size:16px;line-height:1.4;overflow-wrap:anywhere}
+.admin-page .product-card p{margin:0;color:#d0ccc6;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.admin-page .product-card>div>span{color:#aaa49d;font:11px "DM Mono",monospace;text-transform:uppercase}
+.admin-page .product-card .card-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid rgba(255,255,255,.12)}
+.admin-page .product-card .card-row>b{color:#f7f2ed;font:12px "DM Mono",monospace;white-space:nowrap}
+.admin-page .product-card .card-row button{padding:7px 9px;border:1px solid rgba(255,255,255,.28);border-radius:4px;background:transparent;color:#f7f2ed;font-size:12px}
+.admin-page .product-card .card-row button.danger{border-color:#9f4949;color:#ff9898}
