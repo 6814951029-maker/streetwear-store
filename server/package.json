@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "backfill:cod-orders": "node src/scripts/backfillCodOrders.js",
     "create:admin": "node src/scripts/seedAdmin.js",
     "update:admin": "node src/scripts/updateAdmin.js",
     "reset:user-password": "node src/scripts/resetUserPassword.js",

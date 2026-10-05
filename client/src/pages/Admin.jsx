@@ -34,6 +34,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [form, setForm] = useState(blankProduct);
   const [editingId, setEditingId] = useState(null);
@@ -60,6 +61,27 @@ export default function Admin() {
     }
   };
 
+  const loadOrders = async () => {
+    try {
+      const response = await fetch(`${API_URL}/orders`, { headers });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Could not load orders.");
+      setOrders(data.orders || []);
+    } catch (requestError) {
+      setError(requestError.message || "Could not load orders.");
+    }
+  };
+
+  const updateOrderStatus = async (orderId, status) => {
+    try {
+      const response = await fetch(`${API_URL}/orders/${orderId}`, { method: "PUT", headers, body: JSON.stringify({ status }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Could not update order status.");
+      setOrders((current) => current.map((order) => order._id === data._id ? { ...order, ...data, customer: order.customer } : order));
+    } catch (requestError) {
+      setError(requestError.message || "Could not update order status.");
+    }
+  };
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -77,6 +99,7 @@ export default function Admin() {
 
         setUser(data.user);
         await loadProducts();
+        await loadOrders();
       } catch (requestError) {
         setError(requestError.message || "ไม่สามารถตรวจสอบสิทธิ์ผู้ใช้ได้");
       }
@@ -229,6 +252,30 @@ export default function Admin() {
             <span>กระเป๋า</span>
           </article>
         </div>
+
+        <section className="admin-orders">
+          <h2>ORDERS AND DELIVERY</h2>
+          {!orders.length && <p>No orders found.</p>}
+          {orders.map((order) => (
+            <article className="admin-order-row" key={order._id}>
+              <div className="admin-order-info">
+                <strong>#{String(order._id).slice(-8).toUpperCase()}</strong>
+                <span>{order.customer?.fullName || order.customer?.email || "Customer"}</span>
+                <small>{order.shippingAddress?.recipientName} · {order.shippingAddress?.phone}</small>
+                <small>{"\u0e40\u0e01\u0e47\u0e1a\u0e40\u0e07\u0e34\u0e19\u0e1b\u0e25\u0e32\u0e22\u0e17\u0e32\u0e07"}</small>
+              </div>
+              <strong>{Number(order.total || 0).toLocaleString("th-TH")} THB</strong>
+              <select aria-label={`Delivery status for order ${order._id}`} value={order.status} onChange={(event) => updateOrderStatus(order._id, event.target.value)}>
+                <option value="pending">{"\u0e23\u0e31\u0e1a\u0e2d\u0e2d\u0e40\u0e14\u0e2d\u0e23\u0e4c"}</option>
+                <option value="packing">{"\u0e40\u0e15\u0e23\u0e35\u0e22\u0e21\u0e2a\u0e34\u0e19\u0e04\u0e49\u0e32"}</option>
+                <option value="shipped">{"\u0e08\u0e31\u0e14\u0e2a\u0e48\u0e07\u0e41\u0e25\u0e49\u0e27"}</option>
+                <option value="completed">{"\u0e16\u0e36\u0e07\u0e41\u0e25\u0e49\u0e27"}</option>
+                <option value="paid">{"\u0e0a\u0e33\u0e23\u0e30\u0e40\u0e07\u0e34\u0e19\u0e41\u0e25\u0e49\u0e27"}</option>
+                <option value="cancelled">{"\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01"}</option>
+              </select>
+            </article>
+          ))}
+        </section>
 
         <form className="product-form" onSubmit={saveProduct}>
           <h2>{editingId ? "EDIT PRODUCT" : "ADD PRODUCT"}</h2>
